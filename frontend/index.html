@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClearDoc · Document digitization</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/" aria-label="ClearDoc home"><span class="brand-icon">C</span> ClearDoc</a><span class="local-status"><i></i> Local privacy layer active</span></header>
+  <main>
+    <section class="intro"><div class="eyebrow">PRIVATE DOCUMENT WORKFLOW</div><h1>Make documents<br><em>useful again.</em></h1><p>Extract structured information from scans and PDFs. Sensitive values are masked on your device before AI processing.</p></section>
+    <section class="card upload-card" id="upload-card">
+      <div class="section-heading"><div><span class="step">01</span><h2>Choose a document</h2></div><span class="format-label">PDF · PNG · JPG · TIFF</span></div>
+      <form id="upload-form"><label class="drop-zone" id="drop-zone" for="file-input"><span class="upload-icon">↑</span><strong>Drop a file here</strong><span>or <u>browse your device</u></span><small>Up to 20 MB · Files are processed locally first</small><input id="file-input" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp" required></label><div class="file-row" id="file-row" hidden></div><button class="primary" type="submit" id="process-button">Process document <span>→</span></button></form>
+      <div class="progress" id="progress" hidden><span class="spinner"></span><span>Reading document and checking sensitive data…</span></div>
+      <div class="message" id="message" role="status" hidden></div>
+    </section>
+    <section class="card review-card" id="review-card" hidden>
+      <div class="section-heading"><div><span class="step">02</span><h2>Human review</h2></div><span class="review-state" id="review-state">Needs approval</span></div>
+      <div class="privacy-note"><span>✓</span><div><strong>Privacy check passed</strong><p>Only locally masked text was sent for extraction. Review the result before export.</p></div></div>
+      <div class="review-content"><div class="results"><label for="result-json">Extracted data <small>Editable JSON</small></label><textarea id="result-json" spellcheck="false"></textarea><div id="findings" class="findings"></div></div><aside class="preview-wrap" id="preview-wrap"><span class="preview-label">REDACTED DOCUMENT</span><div id="previews"></div></aside></div>
+      <div class="review-actions"><button class="secondary" id="reject-button">Reject</button><div><button class="secondary" id="approve-button">Approve</button><button class="primary" id="export-button" disabled>Export Excel <span>↓</span></button></div></div>
+    </section>
+    <footer>ClearDoc Prototype <span>·</span> Sensitive information stays protected by the local privacy layer.</footer>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>
