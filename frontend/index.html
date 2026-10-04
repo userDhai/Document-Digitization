@@ -17,8 +17,8 @@
     </section>
     <section class="card review-card" id="review-card" hidden>
       <div class="section-heading"><div><span class="step">02</span><h2>Human review</h2></div><span class="review-state" id="review-state">Needs approval</span></div>
-      <div class="privacy-note"><span>✓</span><div><strong>Privacy check passed</strong><p>Only locally masked text was sent for extraction. Review the result before export.</p></div></div>
-      <div class="review-content"><div class="results"><label for="result-json">Extracted data <small>Editable JSON</small></label><textarea id="result-json" spellcheck="false"></textarea><div id="findings" class="findings"></div></div><aside class="preview-wrap" id="preview-wrap"><span class="preview-label">REDACTED DOCUMENT</span><div id="previews"></div></aside></div>
+      <div class="privacy-note"><span>✓</span><div><strong>Local trusted processing complete</strong><p>Detected values were tokenized and verified locally. Only sanitized text was sent to cloud AI. Inspect both panels before approval.</p></div></div>
+      <div class="review-content"><aside class="preview-wrap" id="preview-wrap"><span class="preview-label">PRIVACY-SANITIZED PREVIEW</span><div id="previews"></div></aside><div class="results"><label for="result-json">Extracted data <small>Editable JSON</small></label><textarea id="result-json" spellcheck="false"></textarea><div id="findings" class="findings"></div></div></div>
       <div class="review-actions"><button class="secondary" id="reject-button">Reject</button><div><button class="secondary" id="approve-button">Approve</button><button class="primary" id="export-button" disabled>Export Excel <span>↓</span></button></div></div>
     </section>
     <footer>ClearDoc Prototype <span>·</span> Sensitive information stays protected by the local privacy layer.</footer>

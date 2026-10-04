@@ -48,10 +48,10 @@ function renderReview(data) {
   const review = data.review;
   resultJson.value = JSON.stringify(review.result, null, 2);
   findings.innerHTML = review.findings.length
-    ? `<h3>Masked before AI <span>${review.findings.length}</span></h3>${review.findings.map(item => `<div class="finding"><span class="tag">${escapeHtml(item.category)}</span><code>${escapeHtml(item.token)}</code><small>${escapeHtml(item.masked_value)}</small></div>`).join("")}`
+    ? `<h3>Masked locally before cloud AI <span>${review.findings.length}</span></h3>${review.findings.map(item => `<div class="finding"><span class="tag">${escapeHtml(item.category)}</span><code>${escapeHtml(item.token)}</code><small>${escapeHtml(item.masked_value)}</small></div>`).join("")}`
     : `<div class="no-findings">No sensitive patterns detected. Visual OCR may miss handwriting or low quality scans.</div>`;
   const previews = document.querySelector("#previews");
-  previews.innerHTML = review.redacted_previews.map(url => `<img src="${url}" alt="Locally redacted document page">`).join("");
+  previews.innerHTML = review.redacted_previews.map(url => `<img src="${url}" alt="Privacy-sanitized document page">`).join("");
   document.querySelector("#preview-wrap").hidden = !review.redacted_previews.length;
   document.querySelector("#review-state").textContent = "Needs approval";
   exportButton.disabled = true;

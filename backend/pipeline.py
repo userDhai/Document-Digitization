@@ -43,9 +43,11 @@ _NAME_LABELS = (
 )
 _FIELD_LABELS = re.compile(
     r"\s+(?:employee\s*(?:id|number|no\.?)|id|phone|mobile|email|department|"
-    r"start\s+date|address|date\s+of\s+birth|dob)\s*[:#-]", re.I)
-_PERSON_WORDS = re.compile(r"[\w\u0600-\u06ff][\w\u0600-\u06ff'’.-]*", re.UNICODE)
+    r"start\s+date|date|address|date\s+of\s+birth|dob|gender|title|salary|"
+    r"designation|position|nationality|passport|company|signature)\s*[:#-]", re.I)
+_PERSON_WORDS = re.compile(r"[\w\u0600-\u06ff][\w\u0600-\u06ff'.-]*", re.UNICODE)
 _ID_LABEL = re.compile(r"\b(?:employee\s*(?:id|number|no\.?))\s*[:#-]\s*([A-Z0-9][A-Z0-9-]{4,})\b", re.I)
+_GENERIC_ID_LABEL = re.compile(r"\bID\s*[:#-]\s*([A-Z0-9][A-Z0-9-]{4,})\b", re.I)
 
 
 @dataclass
@@ -124,6 +126,8 @@ def _sensitive_spans(text: str) -> list[tuple[int, int, str, str]]:
     # Capture labelled employee numbers, including values that are not phone-shaped.
     for match in _ID_LABEL.finditer(text):
         spans.append((match.start(1), match.end(1), "EMPLOYEE_ID", match.group(1)))
+    for match in _GENERIC_ID_LABEL.finditer(text):
+        spans.append((match.start(1), match.end(1), "ID", match.group(1)))
     spans.sort(key=lambda x: (x[0], -(x[1] - x[0])))
     selected = []
     for span in spans:
@@ -142,7 +146,8 @@ def detect_and_tokenize(text: str) -> tuple[str, dict[str, str], list[dict[str, 
         out.extend((text[cursor:start], token))
         cursor = end
         mapping[token] = value
-        findings.append({"token": token, "category": kind, "masked_value": f"{value[:2]}\\u2026" if len(value) > 2 else "\\u2022\\u2022"})
+        findings.append({"token": token, "category": kind,
+                         "masked_value": f"{value[:2]}{chr(0x2026)}" if len(value) > 2 else chr(0x2022) * 2})
     out.append(text[cursor:])
     return "".join(out), mapping, findings
 
