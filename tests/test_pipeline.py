@@ -55,6 +55,8 @@ class PrivacyPipelineTests(unittest.TestCase):
         self.assertIn("[[PERSON_001]]", payload)
         self.assertFalse(pipeline.verify_privacy(payload + " Test Person", token_map, True))
         self.assertFalse(pipeline.verify_privacy(payload, token_map, visual_verified=False))
+        with self.assertRaisesRegex(ValueError, "not sent to external AI"):
+            pipeline.call_gemini("Name: Test Person", {"[[PERSON_001]]": "Test Person"}, True)
 
     def test_process_sends_only_sanitized_payload_and_restores_fake_response_locally(self):
         safe, token_map, _ = pipeline.detect_and_tokenize(SYNTHETIC_OCR)
@@ -69,7 +71,7 @@ class PrivacyPipelineTests(unittest.TestCase):
         }
         captured = {}
 
-        def fake_gemini(payload):
+        def fake_gemini(payload, _mapping, _visual_verified):
             captured["payload"] = payload
             return model_response, "fake"
 

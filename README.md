@@ -6,7 +6,7 @@ A small Flask app for OCR, local sensitive-data masking, structured extraction, 
 
 **Local trusted processing:** OCR, contextual name and identifier detection, token mapping, visual redaction, privacy verification, token restoration, human review, and Excel export run on the Flask host. The original-value token map stays in server-side job state and is not returned by the API.
 
-**Cloud AI processing:** Gemini receives only the verified, tokenized OCR text. The original image and original PII values are never included in the Gemini request. If a sensitive value is not found in the outgoing text, its token is missing, or the corresponding OCR boxes are not covered in the generated preview, processing stops before Gemini is called. Demo mode is enabled by default and makes no network request.
+**Cloud AI processing:** Gemini receives only the verified, tokenized OCR text. The original image and original PII values are never included in the Gemini request. If an original sensitive value remains in the outgoing text, its corresponding token is missing, or the corresponding OCR boxes are not covered in the generated preview, processing stops before Gemini is called. Demo mode is enabled by default and makes no network request.
 
 The workflow requires explicit reviewer approval before export. Reviewers can edit the extracted JSON locally. Excel export restores known tokens locally and creates dynamic columns for document type, summary, and each key in `fields`.
 

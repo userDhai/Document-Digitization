@@ -17,6 +17,9 @@ from PIL import Image
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 
+pytesseract.pytesseract.tesseract_cmd = os.getenv(
+    "TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+
 BASE_DIR = Path(__file__).resolve().parents[1]
 TEMP_DIR = BASE_DIR / "temporary"
 OUTPUT_DIR = BASE_DIR / "outputs"
@@ -230,8 +233,10 @@ def build_gemini_payload(safe_text: str) -> str:
             "Preserve privacy tokens exactly.\n\n" + safe_text)
 
 
-def call_gemini(verified_payload: str) -> tuple[dict[str, Any], str]:
-    """Send only a previously verified payload; demo mode remains fully offline."""
+def call_gemini(verified_payload: str, mapping: dict[str, str], visual_verified: bool) -> tuple[dict[str, Any], str]:
+    """Refuse the cloud call unless the exact payload and redacted image verify."""
+    if not verify_privacy(verified_payload, mapping, visual_verified):
+        raise ValueError("Privacy verification failed. The document was not sent to external AI.")
     key = os.getenv("GEMINI_API_KEY")
     if os.getenv("DEMO_MODE", "true").lower() == "true" or not key:
         return {"document_type": "Demo document", "summary": "Demo extraction generated from privacy-filtered OCR text.",
@@ -267,7 +272,7 @@ def process_file(path: Path) -> dict[str, Any]:
     payload = build_gemini_payload(safe_text)
     if not verify_privacy(payload, mapping, visual_verified):
         raise ValueError("Privacy verification failed. The document was not sent to external AI.")
-    result, mode = call_gemini(payload)
+    result, mode = call_gemini(payload, mapping, visual_verified)
     restored = restore_tokens(result, mapping)
     return {"review": prepare_review(restored, findings, previews), "privacy_verified": True,
             "mode": mode, "page_count": len(pages), "_token_map": mapping}
