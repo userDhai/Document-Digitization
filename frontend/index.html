@@ -1,27 +1,99 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ClearDoc · Document digitization</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="/" aria-label="ClearDoc home"><span class="brand-icon">C</span> ClearDoc</a><span class="local-status"><i></i> Local privacy layer active</span></header>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="ClearDoc home"><span class="brand-icon">C</span> ClearDoc</a>
+    <span class="trust-label"><i></i> LOCAL TRUST BOUNDARY</span>
+  </header>
   <main>
-    <section class="intro"><div class="eyebrow">PRIVATE DOCUMENT WORKFLOW</div><h1>Make documents<br><em>useful again.</em></h1><p>Extract structured information from scans and PDFs. Sensitive values are masked on your device before AI processing.</p></section>
+    <section class="intro">
+      <div class="eyebrow">PRIVATE DOCUMENT WORKFLOW</div>
+      <h1>Make documents<br><em>useful again.</em></h1>
+      <p>Review local OCR and privacy masking before choosing to send sanitized text for AI extraction.</p>
+    </section>
+
+    <nav class="stepper" aria-label="Processing stages">
+      <ol id="step-list">
+        <li data-step="0"><span>01</span>Upload</li>
+        <li data-step="1"><span>02</span>Local OCR + redaction</li>
+        <li data-step="2"><span>03</span>Privacy verification</li>
+        <li data-step="3"><span>04</span>Approve AI request</li>
+        <li data-step="4"><span>05</span>AI extraction</li>
+        <li data-step="5"><span>06</span>Payload inspection</li>
+        <li data-step="6"><span>07</span>Human review</li>
+        <li data-step="7"><span>08</span>Final approval</li>
+        <li data-step="8"><span>09</span>Excel export</li>
+      </ol>
+    </nav>
+
     <section class="card upload-card" id="upload-card">
-      <div class="section-heading"><div><span class="step">01</span><h2>Choose a document</h2></div><span class="format-label">PDF · PNG · JPG · TIFF</span></div>
-      <form id="upload-form"><label class="drop-zone" id="drop-zone" for="file-input"><span class="upload-icon">↑</span><strong>Drop a file here</strong><span>or <u>browse your device</u></span><small>Up to 20 MB · Files are processed locally first</small><input id="file-input" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp" required></label><div class="file-row" id="file-row" hidden></div><button class="primary" type="submit" id="process-button">Process document <span>→</span></button></form>
-      <div class="progress" id="progress" hidden><span class="spinner"></span><span>Reading document and checking sensitive data…</span></div>
-      <div class="message" id="message" role="status" hidden></div>
+      <div class="section-heading"><div><span class="step">01</span><h2>Upload document</h2></div><span class="format-label">PDF · PNG · JPG · TIFF</span></div>
+      <form id="upload-form">
+        <label class="drop-zone" id="drop-zone" for="file-input">
+          <span class="upload-icon">↑</span><strong>Drop a file here</strong>
+          <span>or <u>browse your device</u></span>
+          <small>Up to 20 MB · OCR and masking run locally first</small>
+          <input id="file-input" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp" required>
+        </label>
+        <div class="file-row" id="file-row" hidden></div>
+        <button class="primary full-width" type="submit" id="process-button">Upload & process locally <span>→</span></button>
+      </form>
     </section>
-    <section class="card review-card" id="review-card" hidden>
-      <div class="section-heading"><div><span class="step">02</span><h2>Human review</h2></div><span class="review-state" id="review-state">Needs approval</span></div>
-      <div class="privacy-note"><span>✓</span><div><strong>Local trusted processing complete</strong><p>Detected values were tokenized and verified locally. Only sanitized text was sent to cloud AI. Inspect both panels before approval.</p></div></div>
-      <div class="review-content"><aside class="preview-wrap" id="preview-wrap"><span class="preview-label">PRIVACY-SANITIZED PREVIEW</span><div id="previews"></div></aside><div class="results"><label for="result-json">Extracted data <small>Editable JSON</small></label><textarea id="result-json" spellcheck="false"></textarea><div id="findings" class="findings"></div></div></div>
-      <div class="review-actions"><button class="secondary" id="reject-button">Reject</button><div><button class="secondary" id="approve-button">Approve</button><button class="primary" id="export-button" disabled>Export Excel <span>↓</span></button></div></div>
+
+    <div class="message" id="message" role="status" hidden></div>
+    <div class="progress" id="progress" hidden><span class="spinner"></span><span id="progress-text">Processing locally…</span></div>
+
+    <section class="card workflow-card" id="local-review" hidden>
+      <div class="section-heading"><div><span class="step">02–04</span><h2>Review before AI processing</h2></div><span class="status-pill" id="privacy-status">Privacy Verification: —</span></div>
+      <p class="lead" id="pre-ai-instruction">Review the privacy-sanitized document before AI processing.</p>
+      <div class="metadata-grid" id="metadata-grid"></div>
+      <div class="privacy-banner" id="privacy-banner"></div>
+      <div class="preview-heading"><h3>Privacy-sanitized document preview</h3><span>Original image stays local</span></div>
+      <div class="mask-toolbar" aria-label="Manual redaction controls">
+        <button class="secondary" type="button" id="add-mask-button" aria-pressed="false">Add Mask</button>
+        <button class="secondary" type="button" id="undo-mask-button" disabled>Undo</button>
+        <button class="secondary" type="button" id="remove-mask-button" disabled>Remove Selected Mask</button>
+        <button class="secondary" type="button" id="clear-masks-button" disabled>Clear Masks</button>
+        <span class="mask-count" id="mask-count">Manual Masks: 0</span>
+      </div>
+      <p class="mask-instruction" id="mask-instruction" aria-live="polite">Review the sanitized pages. Add masks for sensitive areas OCR may have missed.</p>
+      <div class="page-previews" id="previews"></div>
+      <div class="findings" id="findings"></div>
+      <div class="actions"><button class="secondary" id="reject-local-button">Reject</button><button class="secondary" id="retry-button" hidden>Return to review</button><button class="primary" id="send-ai-button" disabled>Approve &amp; send to AI <span>→</span></button></div>
     </section>
-    <footer>ClearDoc Prototype <span>·</span> Sensitive information stays protected by the local privacy layer.</footer>
+
+    <div class="progress ai-progress" id="ai-progress" hidden><span class="spinner"></span><span>Sending verified, tokenized text for AI extraction…</span></div>
+
+    <section class="card workflow-card" id="ai-review" hidden>
+      <div class="section-heading"><div><span class="step">05–08</span><h2>Inspect extraction and review fields</h2></div><span class="status-pill passed">AI extraction ready</span></div>
+      <section class="payload-panel">
+        <div class="panel-title"><div><span class="panel-icon">↗</span><div><h3>Payload inspection</h3><p>Only sanitized text and tokens were provided to the AI.</p></div></div></div>
+        <details open><summary>Sanitized OCR text</summary><pre id="safe-ocr-text"></pre></details>
+        <details><summary>Sanitized AI payload</summary><pre id="safe-payload"></pre></details>
+      </section>
+      <div class="section-heading result-heading"><div><span class="step">07</span><h2>AI extraction · editable</h2></div></div>
+      <p class="edit-hint">Correct fields, add new ones, or remove incorrect fields. PII tokens remain tokens during review.</p>
+      <div class="top-fields"><label>Document type<input id="document-type" type="text"></label><label>Summary<textarea id="summary" rows="2"></textarea></label></div>
+      <div class="table-wrap"><table class="fields-table"><thead><tr><th>Field</th><th>Value</th><th aria-label="Actions"></th></tr></thead><tbody id="fields-body"></tbody></table></div>
+      <button class="secondary add-field" id="add-field-button">+ Add field</button>
+      <div class="final-approval">
+        <div><strong>Final human approval</strong><p>Tokens are restored locally only when the approved Excel file is prepared.</p></div>
+        <div class="actions"><button class="secondary" id="reject-result-button">Reject result</button><button class="primary" id="approve-export-button">Approve &amp; export Excel <span>↓</span></button></div>
+      </div>
+    </section>
+
+    <section class="completion card" id="completion" hidden>
+      <span class="success-mark">✓</span><div><h2>Excel export ready</h2><p>Your approved, structured workbook has been downloaded.</p></div>
+      <button class="secondary" id="download-again-button">Download again</button>
+    </section>
+
+    <footer>ClearDoc Prototype <span>·</span> Sensitive information is tokenized locally before cloud AI processing.</footer>
   </main>
   <script src="/app.js" defer></script>
 </body>
