@@ -1,27 +1,87 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ClearDoc · Document digitization</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="/" aria-label="ClearDoc home"><span class="brand-icon">C</span> ClearDoc</a><span class="local-status"><i></i> Local privacy layer active</span></header>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="ClearDoc home" data-i18n-aria="ClearDoc home"><span class="brand-icon">C</span> ClearDoc</a>
+    <div class="header-tools">
+      <label class="ui-language"><span data-i18n="Language">Language</span><select id="interface-language" aria-label="Language" data-i18n-aria="Language"><option value="en">English</option><option value="ar">العربية</option></select></label>
+      <span class="trust-label"><i></i> <span data-i18n="LOCAL PRIVACY CHECKS">LOCAL PRIVACY CHECKS</span></span>
+    </div>
+  </header>
   <main>
-    <section class="intro"><div class="eyebrow">PRIVATE DOCUMENT WORKFLOW</div><h1>Make documents<br><em>useful again.</em></h1><p>Extract structured information from scans and PDFs. Sensitive values are masked on your device before AI processing.</p></section>
+    <section class="intro">
+      <div class="eyebrow" data-i18n="DOCUMENT DIGITIZATION">DOCUMENT DIGITIZATION</div>
+      <h1><span data-i18n="From paper">From paper</span><br><em data-i18n="to useful data.">to useful data.</em></h1>
+      <p data-i18n="Upload a document, review its redactions, and export the extracted fields.">Upload a document, review its redactions, and export the extracted fields.</p>
+    </section>
+
+    <nav class="stepper" aria-label="Workflow steps" data-i18n-aria="Workflow steps">
+      <ol id="step-list">
+        <li data-step="0"><span>01</span><span data-i18n="Upload">Upload</span></li>
+        <li data-step="1"><span>02</span><span data-i18n="Visual Review">Visual Review</span></li>
+        <li data-step="2"><span>03</span><span data-i18n="Results &amp; Export">Results &amp; Export</span></li>
+      </ol>
+    </nav>
+
     <section class="card upload-card" id="upload-card">
-      <div class="section-heading"><div><span class="step">01</span><h2>Choose a document</h2></div><span class="format-label">PDF · PNG · JPG · TIFF</span></div>
-      <form id="upload-form"><label class="drop-zone" id="drop-zone" for="file-input"><span class="upload-icon">↑</span><strong>Drop a file here</strong><span>or <u>browse your device</u></span><small>Up to 20 MB · Files are processed locally first</small><input id="file-input" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp" required></label><div class="file-row" id="file-row" hidden></div><button class="primary" type="submit" id="process-button">Process document <span>→</span></button></form>
-      <div class="progress" id="progress" hidden><span class="spinner"></span><span>Reading document and checking sensitive data…</span></div>
-      <div class="message" id="message" role="status" hidden></div>
+      <div class="section-heading"><div><span class="step">01</span><h2 data-i18n="Upload document">Upload document</h2></div><span class="format-label">PDF · PNG · JPG · TIFF</span></div>
+      <form id="upload-form">
+        <label class="drop-zone" id="drop-zone" for="file-input">
+          <span class="upload-icon">↑</span><strong data-i18n="Drop a file here">Drop a file here</strong>
+          <span><span data-i18n="or">or</span> <u data-i18n="browse your device">browse your device</u></span>
+          <small data-i18n="OCR and privacy masking run locally first">OCR and privacy masking run locally first</small>
+          <input id="file-input" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp" required>
+        </label>
+        <div class="file-row" id="file-row" hidden></div>
+        <button class="primary full-width" type="submit" id="process-button"><span data-i18n="Upload document">Upload document</span> <span>→</span></button>
+      </form>
     </section>
-    <section class="card review-card" id="review-card" hidden>
-      <div class="section-heading"><div><span class="step">02</span><h2>Human review</h2></div><span class="review-state" id="review-state">Needs approval</span></div>
-      <div class="privacy-note"><span>✓</span><div><strong>Local trusted processing complete</strong><p>Detected values were tokenized and verified locally. Only sanitized text was sent to cloud AI. Inspect both panels before approval.</p></div></div>
-      <div class="review-content"><aside class="preview-wrap" id="preview-wrap"><span class="preview-label">PRIVACY-SANITIZED PREVIEW</span><div id="previews"></div></aside><div class="results"><label for="result-json">Extracted data <small>Editable JSON</small></label><textarea id="result-json" spellcheck="false"></textarea><div id="findings" class="findings"></div></div></div>
-      <div class="review-actions"><button class="secondary" id="reject-button">Reject</button><div><button class="secondary" id="approve-button">Approve</button><button class="primary" id="export-button" disabled>Export Excel <span>↓</span></button></div></div>
+
+    <div class="message" id="message" role="status" hidden></div>
+    <div class="progress" id="progress" hidden><span class="spinner"></span><span id="progress-text" data-i18n="Running local OCR and privacy checks…">Running local OCR and privacy checks…</span></div>
+
+    <section class="card workflow-card" id="local-review" hidden>
+      <div class="section-heading"><div><span class="step">02</span><h2 data-i18n="Visual Review">Visual Review</h2></div><span class="status-pill" id="privacy-status">Preparing secure preview</span></div>
+      <p class="lead" id="pre-ai-instruction" data-i18n="Review the document and adjust any masks before continuing.">Review the document and adjust any masks before continuing.</p>
+      <div class="privacy-banner" id="privacy-banner" hidden></div>
+      <div class="preview-heading"><h3 data-i18n="Document preview">Document preview</h3><span data-i18n="The source stays local; masked pages are used for AI">The source stays local; masked pages are used for AI</span></div>
+      <div class="mask-toolbar" aria-label="Redaction controls" data-i18n-aria="Redaction controls">
+        <button class="secondary" type="button" id="select-mask-button" aria-pressed="true" data-i18n="Select / Move">Select / Move</button>
+        <button class="secondary" type="button" id="draw-mask-button" aria-pressed="false" data-i18n="Draw Mask">Draw Mask</button>
+        <button class="secondary" type="button" id="undo-mask-button" disabled data-i18n="Undo">Undo</button>
+        <button class="secondary" type="button" id="remove-mask-button" disabled data-i18n="Remove Selected Mask">Remove Selected Mask</button>
+        <button class="secondary" type="button" id="clear-masks-button" disabled data-i18n="Clear Masks">Clear Masks</button>
+        <span class="mask-count" id="mask-count">Masks: 0</span>
+      </div>
+      <p class="mask-instruction" id="mask-instruction" aria-live="polite"><span class="spinner mask-spinner" id="mask-spinner" hidden aria-hidden="true"></span><span id="mask-instruction-text" data-i18n="Automatic masks are yellow; manual masks are blue.">Automatic masks are yellow; manual masks are blue.</span></p>
+      <div class="page-previews" id="previews"></div>
+      <details class="advanced-ocr"><summary data-i18n="Advanced OCR Details">Advanced OCR Details</summary><div id="ocr-diagnostics"></div></details>
+      <p class="quiet-note" id="privacy-hint" hidden data-i18n="Local privacy checks need attention. Review the masks and try again.">Local privacy checks need attention. Review the masks and try again.</p>
+      <div class="actions"><button class="secondary" id="retry-button" hidden data-i18n="Retry AI">Retry AI</button><button class="primary" id="send-ai-button" disabled><span data-i18n="Continue to AI">Continue to AI</span> <span>→</span></button></div>
     </section>
-    <footer>ClearDoc Prototype <span>·</span> Sensitive information stays protected by the local privacy layer.</footer>
+
+    <div class="progress ai-progress" id="ai-progress" hidden><span class="spinner"></span><span data-i18n="Extracting fields from the locally redacted pages. Multi-page documents may take longer.">Extracting fields from the locally redacted pages. Multi-page documents may take longer.</span></div>
+
+    <section class="card workflow-card" id="ai-review" hidden>
+      <div class="section-heading"><div><span class="step">03</span><h2 data-i18n="Results &amp; Export">Results &amp; Export</h2></div><span class="status-pill passed" data-i18n="Extraction ready">Extraction ready</span></div>
+      <p class="edit-hint" data-i18n="Review and edit the extracted fields. Values stay in their source language.">Review and edit the extracted fields. Values stay in their source language.</p>
+      <div class="table-wrap"><table class="fields-table"><thead><tr><th data-i18n="Field">Field</th><th data-i18n="Value">Value</th><th aria-label="Actions" data-i18n-aria="Actions"></th></tr></thead><tbody id="fields-body"></tbody></table></div>
+      <button class="secondary add-field" id="add-field-button" data-i18n="+ Add field">+ Add field</button>
+      <div class="actions export-actions"><button class="primary" id="export-excel-button"><span data-i18n="Export to Excel">Export to Excel</span> <span>↓</span></button><button class="secondary" id="export-word-button"><span data-i18n="Export to Word">Export to Word</span> <span>↓</span></button></div>
+    </section>
+
+    <section class="completion card" id="completion" hidden>
+      <span class="success-mark">✓</span><div><h2 data-i18n="Export ready">Export ready</h2><p id="completion-text">Your file has been downloaded.</p></div>
+      <button class="secondary" id="download-again-button" data-i18n="Download again">Download again</button>
+    </section>
+
+    <footer><span data-i18n="ClearDoc Prototype">ClearDoc Prototype</span> <span>·</span> <span data-i18n="OCR, masking, and privacy verification run locally.">OCR, masking, and privacy verification run locally.</span></footer>
   </main>
   <script src="/app.js" defer></script>
 </body>
